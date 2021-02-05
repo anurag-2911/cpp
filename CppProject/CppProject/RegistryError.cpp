@@ -2,11 +2,24 @@
 #include "RegistryError.h"
 
 
-RegistryError::RegistryError(void)
+LONG m_errorCode;
+RegistryError::RegistryError(const char* message, LONG errorCode): std::runtime_error(message)
+	
 {
+	m_errorCode=errorCode;
 }
+
+LONG RegistryError::ErrorCode()
+{
+	return m_errorCode;
+}
+
 
 
 RegistryError::~RegistryError(void)
 {
+
 }
+
+	
+
