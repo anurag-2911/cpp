@@ -8,5 +8,6 @@ public:
 	
 	std::string RegistryHelper::GetHello();
 	std::wstring RegistryHelper::RegGetString(HKEY hKey,const std::wstring& subKey,const std::wstring& value);
+	DWORD RegistryHelper::RegGetDword(HKEY hKey,const std::wstring& subKey,const std::wstring& value);
 };
 

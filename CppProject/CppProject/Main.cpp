@@ -13,6 +13,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	RegistryHelper registryHelper;	
 	std::string returnVal=registryHelper.GetHello();
 	std::wstring s = registryHelper.RegGetString(HKEY_CURRENT_USER, L"Software\\Microfocus\\zapp", L"hashKey");
+	DWORD data = registryHelper.RegGetDword(HKEY_CURRENT_USER, L"Console", L"ColorTable01");
 	return 0;
 }
 
