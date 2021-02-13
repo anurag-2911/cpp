@@ -33,6 +33,9 @@
     <ClInclude Include="Obfuscator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DesktopLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -48,6 +51,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Obfuscator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DesktopLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
