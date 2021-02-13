@@ -30,6 +30,9 @@
     <ClInclude Include="RegistryError.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Obfuscator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -42,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RegistryError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Obfuscator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

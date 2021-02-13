@@ -79,6 +79,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Obfuscator.h" />
     <ClInclude Include="RegistryError.h" />
     <ClInclude Include="RegistryHelper.h" />
     <ClInclude Include="stdafx.h" />
@@ -86,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Obfuscator.cpp" />
     <ClCompile Include="RegistryError.cpp" />
     <ClCompile Include="RegistryHelper.cpp" />
     <ClCompile Include="stdafx.cpp">
