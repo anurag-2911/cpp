@@ -61,8 +61,8 @@ void DesktopLayout::ModifyLayout()
       spidl.Free()) {
   POINT pt;
   spView->GetItemPosition(spidl, &pt);
-  pt.x += 450;
-  pt.y += 450;
+  pt.x += 150;
+  pt.y += 150;
 
  PCITEMID_CHILD apidl[1] = { spidl };
  spView->SelectAndPositionItems(
