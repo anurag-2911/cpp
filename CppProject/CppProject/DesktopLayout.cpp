@@ -13,6 +13,16 @@
 #include <atlalloc.h>
 #include <stdio.h>
 #include "exdisp.h"
+#include <KnownFolders.h>
+#include "stdafx.h"
+#include <shlwapi.h>
+#include<atlstr.h>
+
+#pragma comment(lib, "shlwapi.lib") 
+
+
+
+
 void FindDesktopFolderView(REFIID riid, void **ppv);
 
 DesktopLayout::DesktopLayout(void)
@@ -35,13 +45,23 @@ void DesktopLayout::ReadLayout()
 	{
 		STRRET str;
 		shellFolder->GetDisplayNameOf(item, SHGDN_NORMAL, &str);
+		LPWSTR nm=str.pOleStr;
+		
 		CComHeapPtr<wchar_t> spszName;
 		StrRetToStr(&str, item, &spszName);
+		
+		POINT point;
+		folderView->GetItemPosition(item, &point);
+	
+		wprintf(L"At %4d,%4d is %ls\n", point.x, point.y, spszName);
 
-		POINT pt;
-		folderView->GetItemPosition(item, &pt);
-  
-		wprintf(L"At %4d,%4d is %ls\n", pt.x, pt.y, spszName);
+		WIN32_FIND_DATA findData;
+		LPCWSTR lpFileName=spszName;
+		
+		CString strPath;
+		HRESULT hResult = E_OUTOFMEMORY;
+		LPTSTR szPath = strPath.GetBufferSetLength(MAX_PATH+1);
+
 	}
 
 
