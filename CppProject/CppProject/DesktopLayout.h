@@ -9,5 +9,7 @@ public:
 	void DesktopLayout::ModifyLayout();
 	void SavePositions(IFolderView *pView, PCWSTR pszFile);
 	void RestorePositions(IFolderView *pView, PCWSTR pszFile);
+	void FindDesktopFolderView(REFIID riid, void **ppv);
+	void DesktopLayout::RestoreLayout();
 };
 

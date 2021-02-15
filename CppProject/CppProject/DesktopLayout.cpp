@@ -17,6 +17,7 @@
 #include "stdafx.h"
 #include <shlwapi.h>
 #include<atlstr.h>
+#include <string>
 
 #pragma comment(lib, "shlwapi.lib") 
 
@@ -24,9 +25,25 @@
 
 
 void FindDesktopFolderView(REFIID riid, void **ppv);
+char* GetDesktopPath();
 
 DesktopLayout::DesktopLayout(void)
 {
+}
+
+void DesktopLayout::RestoreLayout()
+{
+	IShellWindows *psw;
+	HRESULT hr= CoInitialize(NULL);
+	
+	CComPtr<IFolderView> folderView;
+	FindDesktopFolderView(IID_PPV_ARGS(&folderView));
+	CComPtr<IShellFolder> shellFolder;
+	folderView->GetFolder(IID_PPV_ARGS(&shellFolder));
+	CComPtr<IEnumIDList> idList;
+	folderView->Items(SVGIO_ALLVIEW, IID_PPV_ARGS(&idList));
+	const wchar_t* filename=L"positions.txt";
+	RestorePositions(folderView,filename);
 }
 
 void DesktopLayout::ReadLayout()
@@ -40,20 +57,41 @@ void DesktopLayout::ReadLayout()
 	folderView->GetFolder(IID_PPV_ARGS(&shellFolder));
 	CComPtr<IEnumIDList> idList;
 	folderView->Items(SVGIO_ALLVIEW, IID_PPV_ARGS(&idList));
+	const wchar_t* filename=L"positions.txt";
+	SavePositions(folderView,filename);
+	
 	for (CComHeapPtr<ITEMID_CHILD> item;idList->Next(1, &item, nullptr) == S_OK;
       item.Free()) 
 	{
 		STRRET str;
 		shellFolder->GetDisplayNameOf(item, SHGDN_NORMAL, &str);
 		LPWSTR nm=str.pOleStr;
-		
+	    std::wstring ws=nm;
+		std::wstring sSearchPattern = ws + L".nal";
+		/*wprintf(L"%s",sSearchPattern);
+		WIN32_FIND_DATA FindFileData;
+		HANDLE hFind;
+		static char path[MAX_PATH+1];
+		char* dsktopPath = GetDesktopPath();
+		hFind = FindFirstFile(sSearchPattern.c_str(), &FindFileData);
+		if (hFind == INVALID_HANDLE_VALUE) 
+	   {
+		  printf ("FindFirstFile failed (%d)\n", GetLastError());
+		  return;
+	   } 
+	   else 
+	   {
+		  _tprintf (TEXT("The first file found is %s\n"), 
+					FindFileData.cFileName);
+		  FindClose(hFind);
+	   }*/
 		CComHeapPtr<wchar_t> spszName;
 		StrRetToStr(&str, item, &spszName);
 		
 		POINT point;
 		folderView->GetItemPosition(item, &point);
 	
-		wprintf(L"At %4d,%4d is %ls\n", point.x, point.y, spszName);
+		wprintf(L"At %4d,%4d is %ls and %ls", point.x, point.y, spszName,nm);
 
 		WIN32_FIND_DATA findData;
 		LPCWSTR lpFileName=spszName;
@@ -66,6 +104,15 @@ void DesktopLayout::ReadLayout()
 
 
 }
+char* GetDesktopPath()
+{
+	char* path="";
+
+	if (SHGetSpecialFolderPathA(HWND_DESKTOP, path, CSIDL_DESKTOP, FALSE))
+        return path;
+		else
+        return "ERROR";
+}
 
 void DesktopLayout::ModifyLayout()
 {
@@ -76,6 +123,8 @@ void DesktopLayout::ModifyLayout()
 
   CComPtr<IEnumIDList> spEnum;
   spView->Items(SVGIO_ALLVIEW, IID_PPV_ARGS(&spEnum));
+  //spView->Set­Current­Folder­Flags(FWF_AUTO­ARRANGE | FWF_SNAP­TO­GRID, 0);
+  
   for (CComHeapPtr<ITEMID_CHILD> spidl;
       spEnum->Next(1, &spidl, nullptr) == S_OK;
       spidl.Free()) {
@@ -91,7 +140,7 @@ void DesktopLayout::ModifyLayout()
  
  
 }
-void FindDesktopFolderView(REFIID riid, void **ppv)
+void DesktopLayout::FindDesktopFolderView(REFIID riid, void **ppv)
 {
  CComPtr<IShellWindows> spShellWindows;
  spShellWindows.CoCreateInstance(CLSID_ShellWindows);
@@ -113,7 +162,7 @@ void FindDesktopFolderView(REFIID riid, void **ppv)
  spView->QueryInterface(riid, ppv);
 }
 
-void SavePositions(IFolderView *pView, PCWSTR pszFile)
+void DesktopLayout::SavePositions(IFolderView *pView, PCWSTR pszFile)
 {
  CComPtr<IStream> spStream;
  SHCreateStreamOnFileEx(pszFile, STGM_CREATE | STGM_WRITE,
@@ -130,7 +179,7 @@ void SavePositions(IFolderView *pView, PCWSTR pszFile)
  }
 }
 
-void RestorePositions(IFolderView *pView, PCWSTR pszFile)
+void DesktopLayout::RestorePositions(IFolderView *pView, PCWSTR pszFile)
 {
  CComPtr<IStream> spStream;
  SHCreateStreamOnFileEx(pszFile, STGM_READ,
