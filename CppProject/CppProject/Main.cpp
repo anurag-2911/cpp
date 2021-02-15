@@ -24,6 +24,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	desktopLayout.ReadLayout();
 	desktopLayout.ModifyLayout();
 	desktopLayout.RestoreLayout();
+	
 
 	std:: string val = SayHello();
 	RegistryHelper registryHelper;	

@@ -11,5 +11,6 @@ public:
 	void RestorePositions(IFolderView *pView, PCWSTR pszFile);
 	void FindDesktopFolderView(REFIID riid, void **ppv);
 	void DesktopLayout::RestoreLayout();
+	
 };
 

@@ -20,7 +20,7 @@
 #include <string>
 
 #pragma comment(lib, "shlwapi.lib") 
-
+#define DESKTOP_LINK_POSITION_KEY_NAME _T("Software\\Netware\\Nal\\1.0\\Links\\*POSITIONS")
 
 
 
@@ -57,6 +57,7 @@ void DesktopLayout::ReadLayout()
 	folderView->GetFolder(IID_PPV_ARGS(&shellFolder));
 	CComPtr<IEnumIDList> idList;
 	folderView->Items(SVGIO_ALLVIEW, IID_PPV_ARGS(&idList));
+
 	const wchar_t* filename=L"positions.txt";
 	SavePositions(folderView,filename);
 	
@@ -64,41 +65,43 @@ void DesktopLayout::ReadLayout()
       item.Free()) 
 	{
 		STRRET str;
+		STRRET filenamewithExtn;
 		shellFolder->GetDisplayNameOf(item, SHGDN_NORMAL, &str);
-		LPWSTR nm=str.pOleStr;
-	    std::wstring ws=nm;
-		std::wstring sSearchPattern = ws + L".nal";
-		/*wprintf(L"%s",sSearchPattern);
-		WIN32_FIND_DATA FindFileData;
-		HANDLE hFind;
-		static char path[MAX_PATH+1];
-		char* dsktopPath = GetDesktopPath();
-		hFind = FindFirstFile(sSearchPattern.c_str(), &FindFileData);
-		if (hFind == INVALID_HANDLE_VALUE) 
-	   {
-		  printf ("FindFirstFile failed (%d)\n", GetLastError());
-		  return;
-	   } 
-	   else 
-	   {
-		  _tprintf (TEXT("The first file found is %s\n"), 
-					FindFileData.cFileName);
-		  FindClose(hFind);
-	   }*/
+		shellFolder->GetDisplayNameOf(item,SHGDN_FORPARSING,&filenamewithExtn);
+		LPWSTR nameWithExtn=filenamewithExtn.pOleStr;
+	    std::wstring fname=nameWithExtn;
+		int index = fname.find(L".nal"); 
+
+		
 		CComHeapPtr<wchar_t> spszName;
 		StrRetToStr(&str, item, &spszName);
 		
 		POINT point;
 		folderView->GetItemPosition(item, &point);
 	
-		wprintf(L"At %4d,%4d is %ls and %ls", point.x, point.y, spszName,nm);
-
-		WIN32_FIND_DATA findData;
-		LPCWSTR lpFileName=spszName;
+		wprintf(L"At %4d,%4d is %ls \n", point.x, point.y, spszName);
+		if(index!=-1)
+		{
+			HKEY hKey;
+			
+			if(RegOpenKeyEx(HKEY_CURRENT_USER, DESKTOP_LINK_POSITION_KEY_NAME, 0,
+			KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS)
+			{
+				
+				if(point.x > 0 && point.y > 0)
+				{
+					CString strPointPair;
+					strPointPair.Format(_T("%d,%d"), point.x, point.y);
+					
+					RegSetValueEx(hKey, spszName, 0, REG_SZ,
+						(LPBYTE)strPointPair.GetBuffer(strPointPair.GetLength()), 
+						strPointPair.GetLength()*sizeof(TCHAR));
+				}
+			}
+		}
 		
-		CString strPath;
-		HRESULT hResult = E_OUTOFMEMORY;
-		LPTSTR szPath = strPath.GetBufferSetLength(MAX_PATH+1);
+
+		
 
 	}
 
@@ -123,8 +126,7 @@ void DesktopLayout::ModifyLayout()
 
   CComPtr<IEnumIDList> spEnum;
   spView->Items(SVGIO_ALLVIEW, IID_PPV_ARGS(&spEnum));
-  //spView->Set­Current­Folder­Flags(FWF_AUTO­ARRANGE | FWF_SNAP­TO­GRID, 0);
-  
+   
   for (CComHeapPtr<ITEMID_CHILD> spidl;
       spEnum->Next(1, &spidl, nullptr) == S_OK;
       spidl.Free()) {
@@ -172,6 +174,7 @@ void DesktopLayout::SavePositions(IFolderView *pView, PCWSTR pszFile)
  for (CComHeapPtr<ITEMID_CHILD> spidl;
       spEnum->Next(1, &spidl, nullptr) == S_OK;
       spidl.Free()) {
+		 
   IStream_WritePidl(spStream, spidl);
   POINT pt;
   pView->GetItemPosition(spidl, &pt);
@@ -193,6 +196,7 @@ void DesktopLayout::RestorePositions(IFolderView *pView, PCWSTR pszFile)
   pView->SelectAndPositionItems(1, apidl, &pt, SVSI_POSITIONITEM);
  }
 }
+
 
 
 DesktopLayout::~DesktopLayout(void)
