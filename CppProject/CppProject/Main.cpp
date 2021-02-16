@@ -23,7 +23,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	DesktopLayout desktopLayout;
 	desktopLayout.ReadLayout();
 	desktopLayout.ModifyLayout();
-	desktopLayout.RestoreLayout();
+	//desktopLayout.RestoreLayout();
 	
 
 	std:: string val = SayHello();
