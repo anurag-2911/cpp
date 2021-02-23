@@ -76,15 +76,15 @@ void DesktopLayout::ReadLayout()
 		LPWSTR nameWithExtn=filenamewithExtn.pOleStr;
 	    std::wstring fname=nameWithExtn;
 		int index = fname.find(L".nal"); 
-
+		LPWSTR justName=str.pOleStr;
 		
-		CComHeapPtr<wchar_t> spszName;
-		StrRetToStr(&str, item, &spszName);
+		/*CComHeapPtr<wchar_t> spszName;
+		StrRetToStr(&str, item, &spszName);*/
 		
 		POINT point;
 		folderView->GetItemPosition(item, &point);
 	
-		wprintf(L"At %4d,%4d is %ls \n", point.x, point.y, spszName);
+		wprintf(L"At %4d,%4d is %ls \n", point.x, point.y, justName);
 		if(index!=-1)
 		{
 			HKEY hKey;
@@ -98,15 +98,33 @@ void DesktopLayout::ReadLayout()
 					CString strPointPair;
 					strPointPair.Format(_T("%d,%d"), point.x, point.y);
 					
-					RegSetValueEx(hKey, spszName, 0, REG_SZ,
+					RegSetValueEx(hKey, justName, 0, REG_SZ,
 						(LPBYTE)strPointPair.GetBuffer(strPointPair.GetLength()), 
 						strPointPair.GetLength()*sizeof(TCHAR));
 				}
-			}
-		}
+
+				int		iValue = 0;
+				DWORD	dwSize = MAX_PATH;
+				BYTE	szPoint[MAX_PATH];
+				DWORD	dwPointSize = sizeof(szPoint);
+				TCHAR	szDisplayName[MAX_PATH];
+				while(RegEnumValueW(hKey, iValue++, szDisplayName, &dwSize, 
+					NULL, NULL, szPoint , &dwPointSize) == ERROR_SUCCESS)
+				{
+					CString strPoint = szPoint;
+					int iIndex = strPoint.Find(_T(","));
+					if(iIndex == -1)
+					continue;      
+					CString csX = strPoint.Left(iIndex);
+					int iNumChars =(strPoint.GetLength() - iIndex) - 1;
+					CString csY = strPoint.Right(iNumChars);
+					POINT point = {_ttoi(csX), _ttoi(csY)};
+				}
+			 }
 		
-	}
+		}
 	
+	}
 }
 
 
@@ -215,12 +233,12 @@ std::string DesktopLayout::RegGetString(HKEY hKey,const std::string& subKey,cons
 	
 	std::wstring valuew = stringTowstring(value);
 	
-	LONG retCode = ::RegGetValueW(hKey,subkeyw.c_str(),valuew.c_str(),RRF_RT_REG_SZ,nullptr,nullptr,&dataSize);
+	LONG retCode = RegGetValueW(hKey,subkeyw.c_str(),valuew.c_str(),RRF_RT_REG_SZ,nullptr,nullptr,&dataSize);
 	if (retCode == ERROR_SUCCESS)
 	{
 	  std::wstring data;
 	  data.resize(dataSize / sizeof(wchar_t));
-	  retCode = ::RegGetValueW(hKey,subkeyw.c_str(),valuew.c_str(),RRF_RT_REG_SZ,nullptr,&data[0],&dataSize);
+	  retCode = RegGetValueW(hKey,subkeyw.c_str(),valuew.c_str(),RRF_RT_REG_SZ,nullptr,&data[0],&dataSize);
 	  if(retCode == ERROR_SUCCESS)
 	  {
 		  DWORD stringLengthInWchars = dataSize / sizeof(wchar_t);
